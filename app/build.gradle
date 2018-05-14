@@ -1,0 +1,38 @@
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+
+android {
+    compileSdkVersion 27
+    defaultConfig {
+        applicationId "fr.xebia.magrittemlkit"
+        minSdkVersion 21
+        targetSdkVersion 27
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation "com.android.support:appcompat-v7:$supportLibraryVersion"
+    implementation 'com.android.support.constraint:constraint-layout:1.1.0'
+    testImplementation 'junit:junit:4.12'
+
+    // Firebase
+    implementation "com.google.firebase:firebase-core:$firebaseCoreVersion"
+
+    // ML Kit dependencies
+    implementation "com.google.firebase:firebase-ml-vision:$firebaseMLVersion"
+    implementation "com.google.firebase:firebase-ml-vision-image-label-model:$firebaseMLVersion"
+    implementation "com.google.firebase:firebase-ml-model-interpreter:$firebaseMLVersion"
+}
+
+apply plugin: 'com.google.gms.google-services'
