@@ -20,6 +20,7 @@ android {
     }
     aaptOptions {
         noCompress "tflite"
+        noCompress "lite"
     }
 }
 
@@ -37,6 +38,9 @@ dependencies {
     implementation "com.google.firebase:firebase-ml-vision:$firebaseMLVersion"
     implementation "com.google.firebase:firebase-ml-vision-image-label-model:$firebaseMLVersion"
     implementation "com.google.firebase:firebase-ml-model-interpreter:$firebaseMLVersion"
+
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:0.22.5"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib"
 }
 
 apply plugin: 'com.google.gms.google-services'
