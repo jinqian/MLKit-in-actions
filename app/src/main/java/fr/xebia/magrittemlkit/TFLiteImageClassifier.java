@@ -26,7 +26,7 @@ import java.util.PriorityQueue;
 /**
  * Classifies images with Tensorflow Lite. => works with non-quantized model
  */
-public class ImageClassifier {
+public class TFLiteImageClassifier {
 
     /**
      * Tag for the {@link Log}.
@@ -102,9 +102,9 @@ public class ImageClassifier {
             });
 
     /**
-     * Initializes an {@code ImageClassifier}.
+     * Initializes an {@code TFLiteImageClassifier}.
      */
-    ImageClassifier(Activity activity) throws IOException {
+    TFLiteImageClassifier(Activity activity) throws IOException {
         tflite = new Interpreter(loadModelFile(activity));
         labelList = loadLabelList(activity);
         imgData =

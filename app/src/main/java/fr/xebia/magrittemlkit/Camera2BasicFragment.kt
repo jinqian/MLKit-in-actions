@@ -15,6 +15,8 @@ import android.util.Size
 import android.view.*
 import android.widget.Toast
 import com.google.firebase.ml.common.FirebaseMLException
+import fr.xebia.magrittemlkit.CustomImageClassifier.Companion.DIM_IMG_SIZE_X
+import fr.xebia.magrittemlkit.CustomImageClassifier.Companion.DIM_IMG_SIZE_Y
 import kotlinx.android.synthetic.main.fragment_camera2_basic.*
 import java.util.*
 import java.util.concurrent.Semaphore
@@ -29,7 +31,6 @@ class Camera2BasicFragment : Fragment() {
     private var runClassifier = false
 
     private var classifier: CustomImageClassifier? = null
-//    private var classifier: ImageClassifier? = null
 
     /**
      * [TextureView.SurfaceTextureListener] handles several lifecycle events on a [ ].
@@ -471,8 +472,8 @@ class Camera2BasicFragment : Fragment() {
             showToast("Uninitialized Classifier or invalid context.")
             return
         }
-//        val bitmap = autoFitTextureView.getBitmap(DIM_IMG_SIZE_X, DIM_IMG_SIZE_Y)
-        val task = classifier?.classifyFrame(autoFitTextureView.bitmap)
+        val bitmap = autoFitTextureView.getBitmap(DIM_IMG_SIZE_X, DIM_IMG_SIZE_Y)
+        val task = classifier?.classifyFrame(bitmap)
         task?.let {
             it.addOnSuccessListener {
                 val stringBuilder = StringBuilder()
@@ -485,14 +486,6 @@ class Camera2BasicFragment : Fragment() {
                 it.printStackTrace()
             }
         }
-
-        // Using ImageClassifier.java
-//        val bitmap = autoFitTextureView.getBitmap(ImageClassifier.DIM_IMG_SIZE_X, ImageClassifier.DIM_IMG_SIZE_Y);
-//        val textToShow = classifier?.classifyFrame(bitmap)
-//        bitmap.recycle()
-//        textToShow?.let {
-//            showToast(it)
-//        }
     }
 
     /**

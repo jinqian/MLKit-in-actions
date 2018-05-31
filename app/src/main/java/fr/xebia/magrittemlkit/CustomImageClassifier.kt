@@ -1,19 +1,6 @@
-// Copyright 2018 Google LLC
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
 package fr.xebia.magrittemlkit
 
-import android.app.Activity
+import android.content.Context
 import android.graphics.Bitmap
 import android.util.Log
 import android.widget.Toast
@@ -24,26 +11,18 @@ import com.google.firebase.ml.custom.*
 import com.google.firebase.ml.custom.model.FirebaseCloudModelSource
 import com.google.firebase.ml.custom.model.FirebaseLocalModelSource
 import com.google.firebase.ml.custom.model.FirebaseModelDownloadConditions
-import java.io.BufferedReader
-import java.io.IOException
-import java.io.InputStreamReader
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.util.*
-import kotlin.experimental.and
 
-/**
- * A `FirebaseModelInterpreter` based image classifier.
- */
+// this classifier works for non quantized model which input/output format are Float32
 class CustomImageClassifier
-/**
- * Initializes an `CustomImageClassifier`.
- */
 @Throws(FirebaseMLException::class)
-constructor(activity: Activity) {
+constructor(context: Context) {
 
-    /* Preallocated buffers for storing image data in. */
     private val intValues = IntArray(DIM_IMG_SIZE_X * DIM_IMG_SIZE_Y)
+    private val imgData = ByteBuffer.allocateDirect(
+            4 * DIM_BATCH_SIZE * DIM_IMG_SIZE_X * DIM_IMG_SIZE_Y * DIM_PIXEL_SIZE)
 
     private var interpreter: FirebaseModelInterpreter? = null
 
@@ -64,7 +43,7 @@ constructor(activity: Activity) {
     init {
         try {
             Log.d(TAG, "Created a Custom Image Classifier.")
-            labelList = loadLabelList(activity)
+            labelList = loadLabelList(context)
             val inputDims = intArrayOf(DIM_BATCH_SIZE, DIM_IMG_SIZE_X, DIM_IMG_SIZE_Y, DIM_PIXEL_SIZE)
             val outputDims = intArrayOf(1, labelList.size)
 
@@ -88,17 +67,14 @@ constructor(activity: Activity) {
             interpreter = FirebaseModelInterpreter.getInstance(modelOptions)
 
             dataOptions = FirebaseModelInputOutputOptions.Builder()
-                    .setInputFormat(0, FirebaseModelDataType.BYTE, inputDims)
-                    .setOutputFormat(0, FirebaseModelDataType.BYTE, outputDims)
+                    .setInputFormat(0, FirebaseModelDataType.FLOAT32, inputDims)
+                    .setOutputFormat(0, FirebaseModelDataType.FLOAT32, outputDims)
                     .build()
             Log.d(TAG, "Configured input & output data for the custom image classifier.")
         } catch (e: FirebaseMLException) {
-            Toast.makeText(activity, "Error while setting up the model", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "Error while setting up the model", Toast.LENGTH_SHORT).show()
             e.printStackTrace()
         }
-    }
-
-    fun stop() {
     }
 
     /**
@@ -120,20 +96,19 @@ constructor(activity: Activity) {
         return interpreter
                 ?.run(inputs, dataOptions)
                 ?.continueWith { task ->
-                    val labelProbArray = task.result.getOutput<Array<ByteArray>>(0)
+                    val labelProbArray = task.result.getOutput<Array<FloatArray>>(0)
                     getTopLabels(labelProbArray)
                 }
-
     }
 
     /**
      * Gets the top labels in the results.
      */
     @Synchronized
-    private fun getTopLabels(labelProbArray: Array<ByteArray>): List<String> {
+    private fun getTopLabels(labelProbArray: Array<FloatArray>): List<String> {
         for (i in labelList.indices) {
             sortedLabels.add(
-                    AbstractMap.SimpleEntry<String, Float>(labelList[i], (labelProbArray[0][i] and 0xff.toByte()) / 255.0f))
+                    AbstractMap.SimpleEntry<String, Float>(labelList[i], labelProbArray[0][i]))
             if (sortedLabels.size > RESULTS_TO_SHOW) {
                 sortedLabels.poll()
             }
@@ -151,65 +126,38 @@ constructor(activity: Activity) {
     /**
      * Reads label list from Assets.
      */
-    private fun loadLabelList(activity: Activity): List<String> {
-        val labelList = ArrayList<String>()
-        try {
-            BufferedReader(InputStreamReader(activity.assets.open(LABEL_PATH))).use { reader ->
-                do {
-                    val line = reader.readLine()
-                    if (line != null) {
-                        labelList.add(line)
-                    }
-                } while (line != null)
-            }
-        } catch (e: IOException) {
-            Log.e(TAG, "Failed to read label list.", e)
-        }
-
-        return labelList
+    private fun loadLabelList(context: Context): List<String> {
+        val labels = ArrayList<String>()
+        labels.addAll(context.assets.open(LABEL_PATH).bufferedReader().readLines())
+        return labels
     }
 
     @Synchronized
     private fun convertBitmapToByteBuffer(bitmap: Bitmap): ByteBuffer {
-        // TODO need to *4 if using non-quantized model?
-        val imgData = ByteBuffer.allocateDirect(
-                DIM_BATCH_SIZE * DIM_IMG_SIZE_X * DIM_IMG_SIZE_Y * DIM_PIXEL_SIZE)
-        imgData.order(ByteOrder.nativeOrder())
-        val scaledBitmap = Bitmap.createScaledBitmap(bitmap, DIM_IMG_SIZE_X, DIM_IMG_SIZE_Y,
-                true)
-        imgData.rewind()
-        bitmap.getPixels(intValues, 0, scaledBitmap.width, 0, 0,
-                scaledBitmap.width, scaledBitmap.height)
-        // Convert the image to int points.
-        var pixel = 0
-        for (i in 0 until DIM_IMG_SIZE_X) {
-            for (j in 0 until DIM_IMG_SIZE_Y) {
-                val currentValue = intValues[pixel++]
-                imgData.put((currentValue shr 16 and 0xFF).toByte())
-                imgData.put((currentValue shr 8 and 0xFF).toByte())
-                imgData.put((currentValue and 0xFF).toByte())
-            }
+        imgData.apply {
+            order(ByteOrder.nativeOrder())
+            rewind()
         }
+        bitmap.getPixels(intValues, 0, bitmap.width, 0, 0, bitmap.width, bitmap.height)
+
+        intValues.forEach {
+            imgData.putFloat(((it shr 16 and 0xFF) - MEAN) / STD)
+            imgData.putFloat(((it shr 8 and 0xFF) - MEAN) / STD)
+            imgData.putFloat(((it and 0xFF) - MEAN) / STD)
+        }
+
         return imgData
     }
 
     companion object {
         private const val TAG = "CustomImageClassifier"
 
-        // mobile net 224 quant
-//        const val HOSTED_MODEL_NAME = "mobilenet_v1_224_quant"
-//        const val LOCAL_MODEL_ASSET = "mobilenet_v1_1.0_224_quant.tflite"
-
-        const val HOSTED_MODEL_NAME = "mobilenet_v1_224"
-        const val LOCAL_MODEL_ASSET = "mobilenet_v1_1.0_224.tflite"
-
-//        const val HOSTED_MODEL_NAME = "magritte"
-//        const val LOCAL_MODEL_ASSET = "magritte.tflite"
+        const val HOSTED_MODEL_NAME = "magritte"
+        const val LOCAL_MODEL_ASSET = "magritte.tflite"
         /**
          * Name of the label file stored in Assets.
          */
-        private const val LABEL_PATH = "labels.txt"
-//        private const val LABEL_PATH = "magritte_labels.txt"
+        private const val LABEL_PATH = "magritte_labels.txt"
         /**
          * Number of results to show in the UI.
          */
@@ -221,5 +169,8 @@ constructor(activity: Activity) {
         const val DIM_PIXEL_SIZE = 3
         const val DIM_IMG_SIZE_X = 224
         const val DIM_IMG_SIZE_Y = 224
+
+        private const val MEAN = 128
+        private const val STD = 128.0f
     }
 }
