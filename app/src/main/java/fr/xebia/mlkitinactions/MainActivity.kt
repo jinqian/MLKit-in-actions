@@ -24,8 +24,8 @@ class MainActivity : AppCompatActivity() {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
                     != PackageManager.PERMISSION_GRANTED) {
                 if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                                Manifest.permission.READ_CONTACTS)) {
-                    // TODO
+                                Manifest.permission.CAMERA)) {
+                    Toast.makeText(this, R.string.request_permission, Toast.LENGTH_LONG).show()
                 } else {
                     ActivityCompat.requestPermissions(this,
                             arrayOf(Manifest.permission.CAMERA),
