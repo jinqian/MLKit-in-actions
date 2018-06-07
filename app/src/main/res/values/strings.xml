@@ -1,7 +1,7 @@
 <resources>
-    <string name="app_name">MagritteMLKit</string>
-    <string name="open_camera">Open Camera</string>
+    <string name="app_name">MLKit in Actions</string>
 
+    <string name="open_camera">Open Camera</string>
     <string name="picture">Picture</string>
     <string name="description_info">Info</string>
     <string name="request_permission">This sample needs camera permission.</string>

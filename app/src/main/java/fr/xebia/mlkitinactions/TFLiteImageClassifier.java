@@ -1,4 +1,4 @@
-package fr.xebia.magrittemlkit;
+package fr.xebia.mlkitinactions;
 
 import android.app.Activity;
 import android.content.res.AssetFileDescriptor;

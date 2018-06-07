@@ -1,4 +1,4 @@
-package fr.xebia.magrittemlkit
+package fr.xebia.mlkitinactions
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -15,8 +15,8 @@ import android.util.Size
 import android.view.*
 import android.widget.Toast
 import com.google.firebase.ml.common.FirebaseMLException
-import fr.xebia.magrittemlkit.CustomImageClassifier.Companion.DIM_IMG_SIZE_X
-import fr.xebia.magrittemlkit.CustomImageClassifier.Companion.DIM_IMG_SIZE_Y
+import fr.xebia.mlkitinactions.CustomImageClassifier.Companion.DIM_IMG_SIZE_X
+import fr.xebia.mlkitinactions.CustomImageClassifier.Companion.DIM_IMG_SIZE_Y
 import kotlinx.android.synthetic.main.fragment_camera2_basic.*
 import java.util.*
 import java.util.concurrent.Semaphore

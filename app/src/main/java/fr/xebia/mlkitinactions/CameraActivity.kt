@@ -1,4 +1,4 @@
-package fr.xebia.magrittemlkit
+package fr.xebia.mlkitinactions
 
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity

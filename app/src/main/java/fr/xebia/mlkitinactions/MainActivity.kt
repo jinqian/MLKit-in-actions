@@ -1,4 +1,4 @@
-package fr.xebia.magrittemlkit
+package fr.xebia.mlkitinactions
 
 import android.Manifest
 import android.content.Intent

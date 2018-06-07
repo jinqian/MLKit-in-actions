@@ -5,7 +5,7 @@ apply plugin: 'kotlin-android-extensions'
 android {
     compileSdkVersion 27
     defaultConfig {
-        applicationId "fr.xebia.magrittemlkit"
+        applicationId "fr.xebia.mlkitinactions"
         minSdkVersion 21
         targetSdkVersion 27
         versionCode 1
