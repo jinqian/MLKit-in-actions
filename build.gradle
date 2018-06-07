@@ -32,6 +32,4 @@ task clean(type: Delete) {
 
 ext {
     supportLibraryVersion = "27.1.1"
-    firebaseCoreVersion = "15.0.2"
-    firebaseMLVersion = "15.0.0"
 }

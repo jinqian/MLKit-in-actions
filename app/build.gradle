@@ -32,12 +32,12 @@ dependencies {
     testImplementation 'junit:junit:4.12'
 
     // Firebase
-    implementation "com.google.firebase:firebase-core:$firebaseCoreVersion"
+    implementation "com.google.firebase:firebase-core:16.0.0"
 
     // ML Kit dependencies
-    implementation "com.google.firebase:firebase-ml-vision:$firebaseMLVersion"
-    implementation "com.google.firebase:firebase-ml-vision-image-label-model:$firebaseMLVersion"
-    implementation "com.google.firebase:firebase-ml-model-interpreter:$firebaseMLVersion"
+    implementation "com.google.firebase:firebase-ml-vision:16.0.0"
+    implementation "com.google.firebase:firebase-ml-vision-image-label-model:15.0.0"
+    implementation "com.google.firebase:firebase-ml-model-interpreter:16.0.0"
 
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:0.22.5"
     implementation "org.jetbrains.kotlin:kotlin-stdlib"
