@@ -81,7 +81,7 @@ constructor(context: Context) {
      * Classifies a frame from the preview stream.
      */
     @Throws(FirebaseMLException::class)
-    fun classifyFrame(bitmap: Bitmap): Task<List<String>>? {
+    fun classifyFrame(bitmap: Bitmap): Task<Pair<String, Float>>? {
         if (interpreter == null) {
             Log.e(TAG, "Image classifier has not been initialized; Skipped.")
             val uninitialized = ArrayList<String>()
@@ -97,7 +97,7 @@ constructor(context: Context) {
                 ?.run(inputs, dataOptions)
                 ?.continueWith { task ->
                     val labelProbArray = task.result.getOutput<Array<FloatArray>>(0)
-                    getTopLabels(labelProbArray)
+                    getTopLabel(labelProbArray)
                 }
     }
 
@@ -105,22 +105,10 @@ constructor(context: Context) {
      * Gets the top labels in the results.
      */
     @Synchronized
-    private fun getTopLabels(labelProbArray: Array<FloatArray>): List<String> {
-        for (i in labelList.indices) {
-            sortedLabels.add(
-                    AbstractMap.SimpleEntry<String, Float>(labelList[i], labelProbArray[0][i]))
-            if (sortedLabels.size > RESULTS_TO_SHOW) {
-                sortedLabels.poll()
-            }
-        }
-        val result = ArrayList<String>()
-        val size = sortedLabels.size
-        for (i in 0 until size) {
-            val label = sortedLabels.poll()
-            result.add(label.key + ":" + label.value)
-        }
-        Log.d(TAG, "labels: " + result.toString())
-        return result
+    private fun getTopLabel(labelProbArray: Array<FloatArray>): Pair<String, Float> {
+        return labelList.mapIndexed { i, label ->
+            Pair(label, labelProbArray[0][i])
+        }.sortedBy { it.second }.last()
     }
 
     /**

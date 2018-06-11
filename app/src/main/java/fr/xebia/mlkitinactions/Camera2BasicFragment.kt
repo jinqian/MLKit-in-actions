@@ -293,8 +293,6 @@ class Camera2BasicFragment : Fragment() {
             }
         } catch (e: CameraAccessException) {
             e.printStackTrace()
-        } catch (e: NullPointerException) {
-            e.printStackTrace()
         }
 
     }
@@ -476,11 +474,7 @@ class Camera2BasicFragment : Fragment() {
         val task = classifier?.classifyFrame(bitmap)
         task?.let {
             it.addOnSuccessListener {
-                val stringBuilder = StringBuilder()
-                for (result in it) {
-                    stringBuilder.append("$result\n")
-                }
-                showToast(stringBuilder.toString())
+                showToast("${it.first}: ${it.second}")
             }.addOnFailureListener {
                 showToast("Classification failed. ${it.message}")
                 it.printStackTrace()
