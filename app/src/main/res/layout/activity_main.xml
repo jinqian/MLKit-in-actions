@@ -7,13 +7,29 @@
     tools:context=".MainActivity">
 
     <Button
-        android:id="@+id/openCamera"
-        android:layout_width="wrap_content"
+        android:id="@+id/textRecognitionDemoBtn"
+        style="@style/ButtonStyle"
+        android:layout_width="@dimen/button_width"
         android:layout_height="wrap_content"
-        android:text="@string/open_camera"
+        android:drawableStart="@drawable/ic_text_fields_white_24dp"
+        android:text="@string/demo_text_recognition"
+        app:layout_constraintBottom_toTopOf="@+id/customModelDemoBtn"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_chainStyle="packed" />
+
+    <Button
+        android:id="@+id/customModelDemoBtn"
+        style="@style/ButtonStyle"
+        android:layout_width="@dimen/button_width"
+        android:layout_height="wrap_content"
+        android:text="@string/demo_custom_model"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:drawableStart="@drawable/ic_toys_white_24dp"
+        app:layout_constraintTop_toBottomOf="@+id/textRecognitionDemoBtn"
+        app:layout_constraintVertical_chainStyle="packed" />
 
 </android.support.constraint.ConstraintLayout>

@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">MLKit in Actions</string>
 
-    <string name="open_camera">Open Camera</string>
+    <string name="demo_text_recognition">Text Recognition</string>
+    <string name="demo_custom_model">Custom Model</string>
     <string name="request_permission">This demo needs camera permission.</string>
 </resources>

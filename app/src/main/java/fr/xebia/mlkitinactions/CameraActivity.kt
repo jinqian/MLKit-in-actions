@@ -9,9 +9,11 @@ class CameraActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_camera)
         if (null == savedInstanceState) {
+            val fragment = Camera2BasicFragment.newInstance()
+            fragment.arguments = intent.extras
             supportFragmentManager
                     .beginTransaction()
-                    .replace(R.id.container, Camera2BasicFragment.newInstance())
+                    .replace(R.id.container, fragment)
                     .commit()
         }
     }

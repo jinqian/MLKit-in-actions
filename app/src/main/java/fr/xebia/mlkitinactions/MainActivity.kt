@@ -13,27 +13,45 @@ import kotlinx.android.synthetic.main.activity_main.*
 class MainActivity : AppCompatActivity() {
 
     companion object {
-        const val REQUEST_CAMERA_PERMISSION = 1000
+        private const val REQUEST_CAMERA_PERMISSION = 1000
+
+        const val DEMO_MODE = "DEMO_MODE"
+
+        const val DEMO_TEXT_RECOGNITION = 0
+        const val DEMO_BARCODE_SCANING = 1
+        const val DEMO_IMAGE_LABELLING = 2
+        const val DEMO_LANDMARK_RECOGNITION = 3
+        const val DEMO_CUSTOM_MODEL = 4
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        openCamera.setOnClickListener {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
-                    != PackageManager.PERMISSION_GRANTED) {
-                if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                                Manifest.permission.CAMERA)) {
-                    Toast.makeText(this, R.string.request_permission, Toast.LENGTH_LONG).show()
-                } else {
-                    ActivityCompat.requestPermissions(this,
-                            arrayOf(Manifest.permission.CAMERA),
-                            REQUEST_CAMERA_PERMISSION)
-                }
+        textRecognitionDemoBtn.setOnClickListener {
+            // TODO
+        }
+
+        customModelDemoBtn.setOnClickListener {
+            openDemo(DEMO_CUSTOM_MODEL)
+        }
+    }
+
+    private fun openDemo(demoFlag: Int) {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
+                != PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                            Manifest.permission.CAMERA)) {
+                Toast.makeText(this, R.string.request_permission, Toast.LENGTH_LONG).show()
             } else {
-                startActivity(Intent(this, CameraActivity::class.java))
+                ActivityCompat.requestPermissions(this,
+                        arrayOf(Manifest.permission.CAMERA),
+                        REQUEST_CAMERA_PERMISSION)
             }
+        } else {
+            val intent = Intent(this, CameraActivity::class.java)
+            intent.putExtra(DEMO_MODE, demoFlag)
+            startActivity(intent)
         }
     }
 
