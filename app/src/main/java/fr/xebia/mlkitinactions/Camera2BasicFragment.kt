@@ -9,6 +9,7 @@ import android.media.ImageReader
 import android.os.Bundle
 import android.os.Handler
 import android.os.HandlerThread
+import android.support.text.emoji.EmojiCompat
 import android.support.v4.app.Fragment
 import android.util.Log
 import android.util.Size
@@ -17,10 +18,12 @@ import android.widget.Toast
 import com.google.firebase.ml.common.FirebaseMLException
 import fr.xebia.mlkitinactions.CustomImageClassifier.Companion.DIM_IMG_SIZE_X
 import fr.xebia.mlkitinactions.CustomImageClassifier.Companion.DIM_IMG_SIZE_Y
+import fr.xebia.mlkitinactions.emoji.FruitType
 import kotlinx.android.synthetic.main.fragment_camera2_basic.*
 import java.util.*
 import java.util.concurrent.Semaphore
 import java.util.concurrent.TimeUnit
+
 
 /**
  * Reference: https://github.com/googlesamples/android-Camera2Basic/blob/master/kotlinApp/Application/src/main/java/com/example/android/camera2basic/Camera2BasicFragment.kt
@@ -161,9 +164,12 @@ class Camera2BasicFragment : Fragment() {
      *
      * @param text The message to show
      */
-    private fun showToast(text: String) {
+    private fun displayMessage(text: String) {
         val activity = activity
-        activity?.runOnUiThread { resultTextView.text = text }
+        val processedText = EmojiCompat.get().process(text)
+        activity?.runOnUiThread {
+            resultTextView.text = processedText
+        }
     }
 
     override fun onCreateView(
@@ -423,7 +429,7 @@ class Camera2BasicFragment : Fragment() {
                         }
 
                         override fun onConfigureFailed(cameraCaptureSession: CameraCaptureSession) {
-                            showToast("Failed")
+                            displayMessage("Failed")
                         }
                     }, null)
         } catch (e: CameraAccessException) {
@@ -467,16 +473,22 @@ class Camera2BasicFragment : Fragment() {
      */
     private fun classifyFrame() {
         if (classifier == null || activity == null || cameraDevice == null) {
-            showToast("Uninitialized Classifier or invalid context.")
+            displayMessage("Init...")
             return
         }
         val bitmap = autoFitTextureView.getBitmap(DIM_IMG_SIZE_X, DIM_IMG_SIZE_Y)
         val task = classifier?.classifyFrame(bitmap)
         task?.let {
             it.addOnSuccessListener {
-                showToast("${it.first}: ${it.second}")
+                val fruitType = FruitType.getEmojiByName(it.first)
+                val confidence = "%.2f".format(it.second)
+                if (fruitType != FruitType.UNKNOWN && fruitType.emoji.isNotEmpty()) {
+                    displayMessage("${fruitType.emoji}: $confidence")
+                } else {
+                    displayMessage("${it.first}: $confidence")
+                }
             }.addOnFailureListener {
-                showToast("Classification failed. ${it.message}")
+                displayMessage("Classification failed. ${it.message}")
                 it.printStackTrace()
             }
         }

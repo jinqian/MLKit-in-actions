@@ -20,7 +20,6 @@ android {
     }
     aaptOptions {
         noCompress "tflite"
-        noCompress "lite"
     }
 }
 
@@ -28,6 +27,7 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation "com.android.support:appcompat-v7:$supportLibraryVersion"
     implementation "com.android.support:support-v13:$supportLibraryVersion"
+    implementation "com.android.support:support-emoji-bundled:$supportLibraryVersion"
     implementation 'com.android.support.constraint:constraint-layout:1.1.2'
     testImplementation 'junit:junit:4.12'
 

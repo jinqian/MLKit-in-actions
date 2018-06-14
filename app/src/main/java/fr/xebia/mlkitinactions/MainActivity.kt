@@ -9,6 +9,9 @@ import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_main.*
+import android.support.text.emoji.EmojiCompat
+import android.support.text.emoji.bundled.BundledEmojiCompatConfig
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -26,6 +29,9 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val config = BundledEmojiCompatConfig(this)
+        EmojiCompat.init(config)
+
         setContentView(R.layout.activity_main)
 
         textRecognitionDemoBtn.setOnClickListener {
