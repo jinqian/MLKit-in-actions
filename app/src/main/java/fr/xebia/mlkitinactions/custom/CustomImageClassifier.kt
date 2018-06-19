@@ -6,7 +6,6 @@ import android.support.text.emoji.EmojiCompat
 import android.util.Log
 import android.widget.TextView
 import android.widget.Toast
-import com.google.android.gms.tasks.Task
 import com.google.android.gms.tasks.Tasks
 import com.google.firebase.ml.common.FirebaseMLException
 import com.google.firebase.ml.custom.*
@@ -110,31 +109,7 @@ constructor(private val context: Context) : VisionImageProcessor {
     }
 
     override fun stop() {
-
-    }
-
-    /**
-     * Classifies a frame from the preview stream.
-     */
-    @Throws(FirebaseMLException::class)
-    fun classifyFrame(bitmap: Bitmap): Task<Pair<String, Float>>? {
-        if (interpreter == null) {
-            Log.e(TAG, "Image classifier has not been initialized; Skipped.")
-            val uninitialized = ArrayList<String>()
-            uninitialized.add("Uninitialized Classifier.")
-            Tasks.forResult<List<String>>(uninitialized)
-        }
-
-        Log.d(TAG, "classify frame")
-        val imgData = convertBitmapToByteBuffer(bitmap)
-        val inputs = FirebaseModelInputs.Builder().add(imgData).build()
-
-        return interpreter
-                ?.run(inputs, dataOptions)
-                ?.continueWith { task ->
-                    val labelProbArray = task.result.getOutput<Array<FloatArray>>(0)
-                    getTopLabel(labelProbArray)
-                }
+        // TODO how?
     }
 
     /**
