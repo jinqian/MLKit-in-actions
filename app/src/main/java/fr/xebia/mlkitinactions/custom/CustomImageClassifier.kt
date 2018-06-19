@@ -1,8 +1,10 @@
-package fr.xebia.mlkitinactions
+package fr.xebia.mlkitinactions.custom
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.support.text.emoji.EmojiCompat
 import android.util.Log
+import android.widget.TextView
 import android.widget.Toast
 import com.google.android.gms.tasks.Task
 import com.google.android.gms.tasks.Tasks
@@ -11,6 +13,10 @@ import com.google.firebase.ml.custom.*
 import com.google.firebase.ml.custom.model.FirebaseCloudModelSource
 import com.google.firebase.ml.custom.model.FirebaseLocalModelSource
 import com.google.firebase.ml.custom.model.FirebaseModelDownloadConditions
+import fr.xebia.mlkitinactions.GraphicOverlay
+import fr.xebia.mlkitinactions.R
+import fr.xebia.mlkitinactions.VisionImageProcessor
+import fr.xebia.mlkitinactions.emoji.FruitType
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.util.*
@@ -18,7 +24,7 @@ import java.util.*
 // this classifier works for non quantized model which input/output format are Float32
 class CustomImageClassifier
 @Throws(FirebaseMLException::class)
-constructor(context: Context) {
+constructor(private val context: Context) : VisionImageProcessor {
 
     private val intValues = IntArray(DIM_IMG_SIZE_X * DIM_IMG_SIZE_Y)
     private val imgData = ByteBuffer.allocateDirect(
@@ -35,10 +41,6 @@ constructor(context: Context) {
      * Labels corresponding to the output of the vision model.
      */
     private lateinit var labelList: List<String>
-
-    private val sortedLabels = PriorityQueue(
-            RESULTS_TO_SHOW,
-            Comparator<Map.Entry<String, Float>> { o1, o2 -> o1.value.compareTo(o2.value) })
 
     init {
         try {
@@ -75,6 +77,40 @@ constructor(context: Context) {
             Toast.makeText(context, "Error while setting up the model", Toast.LENGTH_SHORT).show()
             e.printStackTrace()
         }
+    }
+
+    override fun process(bitmap: Bitmap, graphicOverlay: GraphicOverlay?, resultTextView: TextView) {
+        if (interpreter == null) {
+            Log.e(TAG, "Image classifier has not been initialized; Skipped.")
+            val uninitialized = ArrayList<String>()
+            uninitialized.add("Uninitialized Classifier.")
+            Tasks.forResult<List<String>>(uninitialized)
+        }
+
+        Log.d(TAG, "classify frame")
+
+        val imgData = convertBitmapToByteBuffer(Bitmap.createScaledBitmap(bitmap, DIM_IMG_SIZE_X, DIM_IMG_SIZE_Y, true))
+        val inputs = FirebaseModelInputs.Builder().add(imgData).build()
+
+        interpreter?.run(inputs, dataOptions)
+                ?.addOnSuccessListener {
+                    val labelProbArray = it.getOutput<Array<FloatArray>>(0)
+                    val results = getTopLabel(labelProbArray)
+
+                    // specific magritte
+                    val fruitType = FruitType.getEmojiByName(results.first)
+                    val confidence = "%.3f".format(results.second)
+                    if (fruitType != FruitType.UNKNOWN && fruitType.emoji.isNotEmpty()) {
+                        val processedText = EmojiCompat.get().process("${fruitType.emoji}: $confidence")
+                        resultTextView.text = processedText
+                    } else {
+                        resultTextView.text = context.getString(R.string.custom_model_result, results.first, confidence)
+                    }
+                }
+    }
+
+    override fun stop() {
+
     }
 
     /**
@@ -146,10 +182,6 @@ constructor(context: Context) {
          * Name of the label file stored in Assets.
          */
         private const val LABEL_PATH = "magritte_labels.txt"
-        /**
-         * Number of results to show in the UI.
-         */
-        private const val RESULTS_TO_SHOW = 3
         /**
          * Dimensions of inputs.
          */

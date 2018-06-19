@@ -22,7 +22,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="fr.xebia.mlkitinactions.CameraActivity" />
+        <activity
+            android:name="fr.xebia.mlkitinactions.CameraActivity"
+            android:screenOrientation="portrait" />
     </application>
 
     <meta-data

@@ -4,4 +4,7 @@
     <string name="demo_text_recognition">Text Recognition</string>
     <string name="demo_custom_model">Custom Model</string>
     <string name="request_permission">This demo needs camera permission.</string>
+
+    <string name="custom_model_result">%s: %s</string>
+    <string name="demo_face_recognition">Face Detection</string>
 </resources>

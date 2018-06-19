@@ -9,16 +9,18 @@ import android.media.ImageReader
 import android.os.Bundle
 import android.os.Handler
 import android.os.HandlerThread
-import android.support.text.emoji.EmojiCompat
 import android.support.v4.app.Fragment
 import android.util.Log
 import android.util.Size
 import android.view.*
 import android.widget.Toast
 import com.google.firebase.ml.common.FirebaseMLException
-import fr.xebia.mlkitinactions.CustomImageClassifier.Companion.DIM_IMG_SIZE_X
-import fr.xebia.mlkitinactions.CustomImageClassifier.Companion.DIM_IMG_SIZE_Y
-import fr.xebia.mlkitinactions.emoji.FruitType
+import fr.xebia.mlkitinactions.MainActivity.Companion.DEMO_CUSTOM_MODEL
+import fr.xebia.mlkitinactions.MainActivity.Companion.DEMO_FACE_RECOGNITION
+import fr.xebia.mlkitinactions.MainActivity.Companion.DEMO_TEXT_RECOGNITION
+import fr.xebia.mlkitinactions.custom.CustomImageClassifier
+import fr.xebia.mlkitinactions.facedetection.FaceDetectionProcessor
+import fr.xebia.mlkitinactions.text.TextRecognitionProcessor
 import kotlinx.android.synthetic.main.fragment_camera2_basic.*
 import java.util.*
 import java.util.concurrent.Semaphore
@@ -33,7 +35,10 @@ class Camera2BasicFragment : Fragment() {
     private val lock = Any()
     private var runClassifier = false
 
-    private var classifier: CustomImageClassifier? = null
+    private var imageProcessor: VisionImageProcessor? = null
+    private var previewScaleFactor = 0.5f
+    private var sampleWidth: Int? = null
+    private var sampleHeight: Int? = null
 
     /**
      * [TextureView.SurfaceTextureListener] handles several lifecycle events on a [ ].
@@ -166,9 +171,8 @@ class Camera2BasicFragment : Fragment() {
      */
     private fun displayMessage(text: String) {
         val activity = activity
-        val processedText = EmojiCompat.get().process(text)
         activity?.runOnUiThread {
-            resultTextView.text = processedText
+            resultTextView?.text = text
         }
     }
 
@@ -181,7 +185,17 @@ class Camera2BasicFragment : Fragment() {
         super.onActivityCreated(savedInstanceState)
         try {
             activity?.apply {
-                classifier = CustomImageClassifier(this)
+                this.intent.extras?.let {
+                    val demoMode = it.getInt(MainActivity.DEMO_MODE)
+                    when (demoMode) {
+                        DEMO_TEXT_RECOGNITION -> imageProcessor = TextRecognitionProcessor()
+                        DEMO_CUSTOM_MODEL -> imageProcessor = CustomImageClassifier(this)
+                        DEMO_FACE_RECOGNITION -> imageProcessor = FaceDetectionProcessor()
+                        else -> {
+                            // TODO
+                        }
+                    }
+                }
             }
         } catch (e: FirebaseMLException) {
             e.printStackTrace()
@@ -290,9 +304,14 @@ class Camera2BasicFragment : Fragment() {
                 val orientation = resources.configuration.orientation
                 if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
                     autoFitTextureView.setAspectRatio(previewSize.width, previewSize.height)
+                    sampleWidth = (previewSize.width * previewScaleFactor).toInt()
+                    sampleHeight = (previewSize.height * previewScaleFactor).toInt()
                 } else {
                     autoFitTextureView.setAspectRatio(previewSize.height, previewSize.width)
+                    sampleWidth = (previewSize.height * previewScaleFactor).toInt()
+                    sampleHeight = (previewSize.width * previewScaleFactor).toInt()
                 }
+                graphicOverlay.setCameraInfo(sampleWidth!!, sampleHeight!!)
 
                 this.cameraId = cameraId
                 return
@@ -451,7 +470,7 @@ class Camera2BasicFragment : Fragment() {
         val rotation = activity.windowManager.defaultDisplay.rotation
         val matrix = Matrix()
         val viewRect = RectF(0f, 0f, viewWidth.toFloat(), viewHeight.toFloat())
-        val bufferRect = RectF(0f, 0f, previewSize.height.toFloat(), previewSize!!.width.toFloat())
+        val bufferRect = RectF(0f, 0f, previewSize.height.toFloat(), previewSize.width.toFloat())
         val centerX = viewRect.centerX()
         val centerY = viewRect.centerY()
         if (Surface.ROTATION_90 == rotation || Surface.ROTATION_270 == rotation) {
@@ -472,26 +491,13 @@ class Camera2BasicFragment : Fragment() {
      * Classifies a frame from the preview stream.
      */
     private fun classifyFrame() {
-        if (classifier == null || activity == null || cameraDevice == null) {
+        if (imageProcessor == null || activity == null || cameraDevice == null
+                || sampleWidth == null || sampleHeight == null) {
             displayMessage("Init...")
             return
         }
-        val bitmap = autoFitTextureView.getBitmap(DIM_IMG_SIZE_X, DIM_IMG_SIZE_Y)
-        val task = classifier?.classifyFrame(bitmap)
-        task?.let {
-            it.addOnSuccessListener {
-                val fruitType = FruitType.getEmojiByName(it.first)
-                val confidence = "%.2f".format(it.second)
-                if (fruitType != FruitType.UNKNOWN && fruitType.emoji.isNotEmpty()) {
-                    displayMessage("${fruitType.emoji}: $confidence")
-                } else {
-                    displayMessage("${it.first}: $confidence")
-                }
-            }.addOnFailureListener {
-                displayMessage("Classification failed. ${it.message}")
-                it.printStackTrace()
-            }
-        }
+        val bitmap = autoFitTextureView.getBitmap(sampleWidth!!, sampleHeight!!)
+        imageProcessor?.process(bitmap, graphicOverlay, resultTextView)
     }
 
     /**

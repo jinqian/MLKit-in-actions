@@ -4,13 +4,13 @@ import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.support.text.emoji.EmojiCompat
+import android.support.text.emoji.bundled.BundledEmojiCompatConfig
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_main.*
-import android.support.text.emoji.EmojiCompat
-import android.support.text.emoji.bundled.BundledEmojiCompatConfig
 
 
 class MainActivity : AppCompatActivity() {
@@ -21,10 +21,11 @@ class MainActivity : AppCompatActivity() {
         const val DEMO_MODE = "DEMO_MODE"
 
         const val DEMO_TEXT_RECOGNITION = 0
-        const val DEMO_BARCODE_SCANING = 1
-        const val DEMO_IMAGE_LABELLING = 2
-        const val DEMO_LANDMARK_RECOGNITION = 3
-        const val DEMO_CUSTOM_MODEL = 4
+        const val DEMO_FACE_RECOGNITION = 1
+        const val DEMO_BARCODE_SCANING = 2
+        const val DEMO_IMAGE_LABELLING = 3
+        const val DEMO_LANDMARK_RECOGNITION = 4
+        const val DEMO_CUSTOM_MODEL = 5
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -35,7 +36,11 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         textRecognitionDemoBtn.setOnClickListener {
-            // TODO
+            openDemo(DEMO_TEXT_RECOGNITION)
+        }
+
+        faceRecognitionDemoBtn.setOnClickListener{
+            openDemo(DEMO_FACE_RECOGNITION)
         }
 
         customModelDemoBtn.setOnClickListener {
