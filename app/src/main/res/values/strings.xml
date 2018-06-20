@@ -7,4 +7,5 @@
 
     <string name="custom_model_result">%s: %s</string>
     <string name="demo_face_recognition">Face Detection</string>
+    <string name="demo_image_labeling">Image Labeling</string>
 </resources>

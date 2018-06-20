@@ -23,7 +23,7 @@ class MainActivity : AppCompatActivity() {
         const val DEMO_TEXT_RECOGNITION = 0
         const val DEMO_FACE_RECOGNITION = 1
         const val DEMO_BARCODE_SCANING = 2
-        const val DEMO_IMAGE_LABELLING = 3
+        const val DEMO_IMAGE_LABELING = 3
         const val DEMO_LANDMARK_RECOGNITION = 4
         const val DEMO_CUSTOM_MODEL = 5
     }
@@ -39,8 +39,12 @@ class MainActivity : AppCompatActivity() {
             openDemo(DEMO_TEXT_RECOGNITION)
         }
 
-        faceRecognitionDemoBtn.setOnClickListener{
+        faceRecognitionDemoBtn.setOnClickListener {
             openDemo(DEMO_FACE_RECOGNITION)
+        }
+
+        imageLabelingDemoBtn.setOnClickListener {
+            openDemo(DEMO_IMAGE_LABELING)
         }
 
         customModelDemoBtn.setOnClickListener {

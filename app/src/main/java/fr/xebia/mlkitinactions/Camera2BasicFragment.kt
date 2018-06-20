@@ -17,9 +17,11 @@ import android.widget.Toast
 import com.google.firebase.ml.common.FirebaseMLException
 import fr.xebia.mlkitinactions.MainActivity.Companion.DEMO_CUSTOM_MODEL
 import fr.xebia.mlkitinactions.MainActivity.Companion.DEMO_FACE_RECOGNITION
+import fr.xebia.mlkitinactions.MainActivity.Companion.DEMO_IMAGE_LABELING
 import fr.xebia.mlkitinactions.MainActivity.Companion.DEMO_TEXT_RECOGNITION
 import fr.xebia.mlkitinactions.custom.CustomImageClassifier
 import fr.xebia.mlkitinactions.facedetection.FaceDetectionProcessor
+import fr.xebia.mlkitinactions.imagelabeling.ImageLabelingProcessor
 import fr.xebia.mlkitinactions.text.TextRecognitionProcessor
 import kotlinx.android.synthetic.main.fragment_camera2_basic.*
 import java.util.*
@@ -191,6 +193,7 @@ class Camera2BasicFragment : Fragment() {
                         DEMO_TEXT_RECOGNITION -> imageProcessor = TextRecognitionProcessor()
                         DEMO_CUSTOM_MODEL -> imageProcessor = CustomImageClassifier(this)
                         DEMO_FACE_RECOGNITION -> imageProcessor = FaceDetectionProcessor()
+                        DEMO_IMAGE_LABELING -> imageProcessor = ImageLabelingProcessor()
                         else -> {
                             // TODO
                         }
