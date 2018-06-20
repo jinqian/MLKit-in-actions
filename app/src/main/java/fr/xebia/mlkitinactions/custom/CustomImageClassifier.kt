@@ -34,7 +34,7 @@ constructor(private val context: Context) : VisionImageProcessor {
     /**
      * Data configuration of input & output data of model.
      */
-    private lateinit var dataOptions: FirebaseModelInputOutputOptions
+    private lateinit var inputOutputOptions: FirebaseModelInputOutputOptions
 
     /**
      * Labels corresponding to the output of the vision model.
@@ -67,7 +67,7 @@ constructor(private val context: Context) : VisionImageProcessor {
                     .build()
             interpreter = FirebaseModelInterpreter.getInstance(modelOptions)
 
-            dataOptions = FirebaseModelInputOutputOptions.Builder()
+            inputOutputOptions = FirebaseModelInputOutputOptions.Builder()
                     .setInputFormat(0, FirebaseModelDataType.FLOAT32, inputDims)
                     .setOutputFormat(0, FirebaseModelDataType.FLOAT32, outputDims)
                     .build()
@@ -88,10 +88,10 @@ constructor(private val context: Context) : VisionImageProcessor {
 
         Log.d(TAG, "classify frame")
 
-        val imgData = convertBitmapToByteBuffer(Bitmap.createScaledBitmap(bitmap, DIM_IMG_SIZE_X, DIM_IMG_SIZE_Y, true))
-        val inputs = FirebaseModelInputs.Builder().add(imgData).build()
+        val imageByteBuffer = convertBitmapToByteBuffer(Bitmap.createScaledBitmap(bitmap, DIM_IMG_SIZE_X, DIM_IMG_SIZE_Y, true))
+        val inputs = FirebaseModelInputs.Builder().add(imageByteBuffer).build()
 
-        interpreter?.run(inputs, dataOptions)
+        interpreter?.run(inputs, inputOutputOptions)
                 ?.addOnSuccessListener {
                     val labelProbArray = it.getOutput<Array<FloatArray>>(0)
                     val results = getTopLabel(labelProbArray)

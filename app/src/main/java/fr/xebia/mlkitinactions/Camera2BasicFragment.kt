@@ -38,7 +38,6 @@ class Camera2BasicFragment : Fragment() {
     private var runClassifier = false
 
     private var imageProcessor: VisionImageProcessor? = null
-    private var previewScaleFactor = 0.5f
     private var sampleWidth: Int? = null
     private var sampleHeight: Int? = null
 
@@ -307,12 +306,12 @@ class Camera2BasicFragment : Fragment() {
                 val orientation = resources.configuration.orientation
                 if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
                     autoFitTextureView.setAspectRatio(previewSize.width, previewSize.height)
-                    sampleWidth = (previewSize.width * previewScaleFactor).toInt()
-                    sampleHeight = (previewSize.height * previewScaleFactor).toInt()
+                    sampleWidth = previewSize.width
+                    sampleHeight = previewSize.height
                 } else {
                     autoFitTextureView.setAspectRatio(previewSize.height, previewSize.width)
-                    sampleWidth = (previewSize.height * previewScaleFactor).toInt()
-                    sampleHeight = (previewSize.width * previewScaleFactor).toInt()
+                    sampleWidth = previewSize.height
+                    sampleHeight = previewSize.width
                 }
                 graphicOverlay.setCameraInfo(sampleWidth!!, sampleHeight!!)
 
@@ -441,9 +440,9 @@ class Camera2BasicFragment : Fragment() {
                                         CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE)
 
                                 // Finally, we start displaying the camera preview.
-                                previewRequest = previewRequestBuilder!!.build()
+                                previewRequest = previewRequestBuilder.build()
                                 captureSession!!.setRepeatingRequest(
-                                        previewRequest!!, captureCallback, backgroundHandler)
+                                        previewRequest, captureCallback, backgroundHandler)
                             } catch (e: CameraAccessException) {
                                 e.printStackTrace()
                             }
