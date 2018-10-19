@@ -52,7 +52,7 @@ constructor(private val context: Context) : VisionImageProcessor {
                     .requireWifi()
                     .build()
             val localModelSource = FirebaseLocalModelSource.Builder(LOCAL_MODEL_NAME)
-                    .setAssetFilePath(LOCAL_MODEL_ASSET).build()
+                    .setAssetFilePath(LOCAL_MODEL_PATH).build()
             val cloudSource = FirebaseCloudModelSource.Builder(HOSTED_MODEL_NAME)
                     .enableModelUpdates(true)
                     .setInitialDownloadConditions(conditions)
@@ -153,17 +153,12 @@ constructor(private val context: Context) : VisionImageProcessor {
     companion object {
         private const val TAG = "CustomImageClassifier"
 
-        const val HOSTED_MODEL_NAME = "magritte"
-        const val LOCAL_MODEL_ASSET = "magritte.tflite"
-        const val LOCAL_MODEL_NAME = "magritte"
+        private const val HOSTED_MODEL_NAME = "magritte"
+        private const val LOCAL_MODEL_NAME = "magritte"
 
-        /**
-         * Name of the label file stored in Assets.
-         */
+        private const val LOCAL_MODEL_PATH = "magritte.tflite"
         private const val LABEL_PATH = "magritte_labels.txt"
-        /**
-         * Dimensions of inputs.
-         */
+
         const val DIM_BATCH_SIZE = 1
         const val DIM_PIXEL_SIZE = 3
         const val DIM_IMG_SIZE_X = 224
