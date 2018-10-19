@@ -51,7 +51,7 @@ constructor(private val context: Context) : VisionImageProcessor {
             val conditions = FirebaseModelDownloadConditions.Builder()
                     .requireWifi()
                     .build()
-            val localModelSource = FirebaseLocalModelSource.Builder("asset")
+            val localModelSource = FirebaseLocalModelSource.Builder(LOCAL_MODEL_NAME)
                     .setAssetFilePath(LOCAL_MODEL_ASSET).build()
             val cloudSource = FirebaseCloudModelSource.Builder(HOSTED_MODEL_NAME)
                     .enableModelUpdates(true)
@@ -63,10 +63,11 @@ constructor(private val context: Context) : VisionImageProcessor {
             manager.registerCloudModelSource(cloudSource)
             val modelOptions = FirebaseModelOptions.Builder()
                     .setCloudModelName(HOSTED_MODEL_NAME)
-                    .setLocalModelName("asset")
+                    .setLocalModelName(LOCAL_MODEL_NAME)
                     .build()
             interpreter = FirebaseModelInterpreter.getInstance(modelOptions)
 
+            // options for non-quantized model
             inputOutputOptions = FirebaseModelInputOutputOptions.Builder()
                     .setInputFormat(0, FirebaseModelDataType.FLOAT32, inputDims)
                     .setOutputFormat(0, FirebaseModelDataType.FLOAT32, outputDims)
@@ -117,10 +118,11 @@ constructor(private val context: Context) : VisionImageProcessor {
      */
     @Synchronized
     private fun getTopLabel(labelProbArray: Array<FloatArray>): Pair<String, Float> {
-        return labelList.mapIndexed { i, label ->
+        return labelList.asSequence().mapIndexed { i, label ->
             Pair(label, labelProbArray[0][i])
         }.sortedBy { it.second }.last()
     }
+
 
     /**
      * Reads label list from Assets.
@@ -153,6 +155,8 @@ constructor(private val context: Context) : VisionImageProcessor {
 
         const val HOSTED_MODEL_NAME = "magritte"
         const val LOCAL_MODEL_ASSET = "magritte.tflite"
+        const val LOCAL_MODEL_NAME = "magritte"
+
         /**
          * Name of the label file stored in Assets.
          */
